@@ -1,0 +1,1 @@
+-- Fact orders table: latest version per order_id (dedup + current state)
