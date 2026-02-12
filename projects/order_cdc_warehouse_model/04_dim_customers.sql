@@ -1,0 +1,1 @@
+-- Customer dimension derived from orders (first_seen, last_seen, active flag)
