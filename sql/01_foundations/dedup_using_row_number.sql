@@ -25,3 +25,28 @@ FROM (
 )
 WHERE row_no = 1
 ORDER BY customer_id;
+
+
+/*
+Snowflake version using QUALIFY
+This removes the need for a subquery.
+*/
+
+WITH customer_updates AS (
+  SELECT 'C001' AS customer_id, 'a@gmail.com' AS email, DATE '2026-01-01' AS updated_at UNION ALL
+  SELECT 'C001', 'a@gmail.com', DATE '2026-01-05' UNION ALL
+  SELECT 'C002', 'b@gmail.com', DATE '2026-01-02' UNION ALL
+  SELECT 'C002', 'b@gmail.com', DATE '2026-01-03' UNION ALL
+  SELECT 'C003', 'c@gmail.com', DATE '2026-01-04'
+)
+
+SELECT
+  customer_id,
+  email,
+  updated_at
+FROM customer_updates
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY customer_id
+  ORDER BY updated_at DESC
+) = 1
+ORDER BY customer_id;
