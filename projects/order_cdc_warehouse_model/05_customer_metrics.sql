@@ -1,0 +1,1 @@
+-- Customer metrics mart (spend, order_count, last_order_date, last_30d_spend)
