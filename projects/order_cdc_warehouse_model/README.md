@@ -4,6 +4,8 @@
 
 This project simulates a production-grade Change Data Capture (CDC) warehouse pipeline using SQL. It demonstrates how raw transactional updates are transformed into reliable, analytics-ready warehouse tables.
 
+It also demonstrates incremental CDC processing using ingestion watermarks to simulate production pipeline behavior.
+
 The pipeline handles real-world data engineering problems including duplicate records, late-arriving events, data corrections, and invalid data.
 
 This project models a common warehouse architecture used in Snowflake, BigQuery, and modern analytics platforms.
@@ -14,7 +16,7 @@ This project models a common warehouse architecture used in Snowflake, BigQuery,
 
 The pipeline follows a layered warehouse design:
 
-Raw Layer → Clean Layer → Fact Layer → Dimension Layer → Mart Layer
+Raw Layer → Clean Layer → Fact Layer → Dimension Layer → Mart Layer → Incremental Processing Layer
 
 ---
 
@@ -103,6 +105,44 @@ This is the layer used by dashboards and business reports.
 
 ---
 
+### 6. Daily Revenue Mart (`06_daily_revenue.sql`)
+
+Builds daily revenue analytics using business event time.
+
+Provides time-based revenue metrics:
+
+- revenue_date
+- order_count
+- total_revenue
+- avg_order_value
+
+Uses event_ts instead of ingested_at to ensure revenue is attributed to the correct business date.
+
+This ensures late-arriving events are correctly reflected in historical revenue reporting.
+
+Output: one row per revenue_date.
+
+---
+
+### 7. Incremental CDC Load Simulation (`07_incremental_load_simulation.sql`)
+
+Simulates incremental CDC pipeline processing using an ingestion watermark.
+
+Demonstrates how production pipelines process only new records instead of reprocessing all historical data.
+
+Key logic applied:
+
+- track last_processed_ingested_at watermark
+- filter records using ingested_at > watermark
+- apply CDC deduplication using ROW_NUMBER()
+- produce current-state records for incremental updates
+
+This approach improves scalability, efficiency, and correctness in large-scale warehouse pipelines.
+
+Output: incremental batch records and incremental current-state records.
+
+---
+
 ## CDC Logic Explained
 
 The pipeline distinguishes between:
@@ -123,6 +163,7 @@ This approach ensures accurate analytics even when events arrive late or are cor
 - Warehouse fact and dimension modeling
 - Data quality filtering
 - Analytical aggregation patterns
+- Incremental CDC processing using ingestion watermarks
 
 Compatible with:
 
@@ -141,6 +182,7 @@ This project demonstrates core data engineering concepts:
 - Fact and dimension modeling
 - Building analytics-ready data marts
 - Designing layered warehouse pipelines
+- Implementing incremental data processing logic
 
 ---
 
